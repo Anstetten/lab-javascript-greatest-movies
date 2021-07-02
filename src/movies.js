@@ -1,37 +1,4 @@
-const movies = [
-  {
-    title: 'The Shawshank Redemption',
-    year: 1994,
-    director: 'Frank Darabont',
-    duration: '2h 22min',
-    genre: ['Crime', 'Drama'],
-    score: 9.3
-  },
-  {
-    title: 'The Godfather',
-    year: 1972,
-    director: 'Francis Ford Coppola',
-    duration: '2h 55min',
-    genre: ['Crime', 'Drama'],
-    score: ''
-  },
-  {
-    title: 'The Godfather: Part II',
-    year: 1974,
-    director: 'Steven Spielberg',
-    duration: '3h 22min',
-    genre: ['Crime', 'Drama'],
-    score: {}
-  },
-  {
-    title: 'The Dark Knight',
-    year: 2008,
-    director: 'Steven Spielberg',
-    duration: '2h 32min',
-    genre: ['Action', 'Crime', 'Drama', 'Thriller'],
-    score: 9
-  }
-]
+const movies = require('../src/data');
 
 // Iteration 1: All directors? - Get the array of all directors.
 // _Bonus_: It seems some of the directors had directed multiple movies so they will pop up multiple times in the array of directors.
@@ -76,7 +43,7 @@ function scoresAverage(movies) {
 // Iteration 4: Drama movies - Get the average of Drama Movies
 function dramaMoviesScore(movies) {
   if(movies.length===0 ) return 0;
-  let dramaMovies=movies.filter(movie=>{if (movie.genre.includes("Drama")) return movie;})
+  let dramaMovies=movies.filter(movie=>{if (movie.genre.includes("Drama")) return movie;});
   if(dramaMovies.length===0) return 0;
   let totalScore=dramaMovies.reduce((totalPoints, movie)=>{
     
@@ -122,14 +89,51 @@ function orderAlphabetically(movies) {
 
 }
 
-console.log(orderAlphabetically(movies));
-
 // BONUS - Iteration 7: Time Format - Turn duration of the movies from hours to minutes
-function turnHoursToMinutes() {}
+function turnHoursToMinutes(movies) {
+  let stringifiedMovies= JSON.stringify(movies);
+  let newMovies = JSON.parse(stringifiedMovies);
+
+  let moviesWithNewTime= newMovies.map(movie=>{
+    let newDuration = [];
+    newDuration=movie.duration.split(' ');
+    newDuration[0]=newDuration[0].replace("h",'');
+    if(typeof(newDuration[1])==="string") newDuration[1]=newDuration[1].replace("min",'');
+    if(typeof(newDuration[1])==="string") {movie.duration=parseInt(newDuration[0])*60+parseInt(newDuration[1]);}
+    else{movie.duration=parseInt(newDuration[0])*60}
+    return movie;
+  })
+
+  return moviesWithNewTime;
+}
 
 // BONUS - Iteration 8: Best yearly score average - Best yearly score average
-function bestYearAvg() {}
+function bestYearAvg(movies) {
+  if (movies.length===0) return null;
+  let moviesByYear=orderByYear(movies);
+  let listOfYears= moviesByYear.map(movie=>movie.year)
+  let listOfIndividualYears=[];
+  listOfYears.forEach(year => { if (!listOfIndividualYears.includes(year)) listOfIndividualYears.push(year);})
+  
+  let avrScoresPerYear= listOfIndividualYears.map(year=>{
+    let moviesOfYear=moviesByYear.filter(movie=>{if (movie.year===year) return movie;});
+    return [year,scoresAverage(moviesOfYear)];
+  })
+console.log(avrScoresPerYear);
+  let bestYear=[0,0];
 
+  avrScoresPerYear.forEach (year => {if(year[1]>bestYear[1]) {bestYear=year;}
+                                      if(year[1]=bestYear[1]){
+                                        if(year[0]<bestYear[0]){
+                                          bestYear=year;
+                                        }
+                                      }});
+
+  return `The best year was ${bestYear[0]} with an average score of ${bestYear[1]}`;
+  
+}
+
+console.log(bestYearAvg(movies));
 
 
 // The following is required to make unit tests work.
